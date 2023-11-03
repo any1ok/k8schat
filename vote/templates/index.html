@@ -12,14 +12,15 @@
   </head>
   <body>
     <div id="content-container">
+      <!-- a 나 b 보내야됨 -->
       <div id="content-container-center">
-        <h3>{{option_a}} vs {{option_b}}!</h3>
-        <form id="choice" name='form' method="POST" action="/">
-          <button id="a" type="submit" name="vote" class="a" value="a">{{option_a}}</button>
-          <button id="b" type="submit" name="vote" class="b" value="b">{{option_b}}</button>
+        <h3>메세지를 한번 보내보기</h3> 
+        <form id="chat" name='chat-form' method="POST" action="/">
+          <input type="text" id="user_input" name="chat" placeholder="Enter your option..." required>
+          <button id="submit" type="submit">Submit</button>
         </form>
         <div id="tip">
-          (Tip: you can change your vote)
+          채팅메세지를 입력해보아요
         </div>
         <div id="hostname">
           Processed by container ID {{hostname}}
@@ -29,21 +30,5 @@
     <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
 
-    {% if vote %}
-    <script>
-      var vote = "{{vote}}";
-
-      if(vote == "a"){
-        $(".a").prop('disabled', true);
-        $(".a").html('{{option_a}} <i class="fa fa-check-circle"></i>');
-        $(".b").css('opacity','0.5');
-      }
-      if(vote == "b"){
-        $(".b").prop('disabled', true);
-        $(".b").html('{{option_b}} <i class="fa fa-check-circle"></i>');
-        $(".a").css('opacity','0.5');
-      }
-    </script>
-    {% endif %}
   </body>
 </html>

@@ -16,10 +16,10 @@ gunicorn_error_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers.extend(gunicorn_error_logger.handlers)
 app.logger.setLevel(logging.INFO)
 
-def get_redis():
-    if not hasattr(g, 'redis'):
-        g.redis = Redis(host="redis", db=0, socket_timeout=5)
-    return g.redis
+# def get_redis():
+#     if not hasattr(g, 'redis'):
+#         g.redis = Redis(host="redis", db=0, socket_timeout=5)
+#     return g.redis
 
 @app.route("/", methods=['POST','GET'])
 def hello():
@@ -27,21 +27,24 @@ def hello():
     if not voter_id:
         voter_id = hex(random.getrandbits(64))[2:-1]
 
-    vote = None
+    chat = None
 
     if request.method == 'POST':
-        redis = get_redis()
-        vote = request.form['vote']
-        app.logger.info('Received vote for %s', vote)
-        data = json.dumps({'voter_id': voter_id, 'vote': vote})
-        redis.rpush('votes', data)
+        # redis = get_redis()
+        chat = request.form['chat']
+        # user_input = request.form['user_input']
+        print(chat)
+        # print(user_input)
+        app.logger.info('Received vote for %s', chat)
+        data = json.dumps({'voter_id': voter_id, 'vote': chat})
+        # redis.rpush('votes', data)
 
     resp = make_response(render_template(
         'index.html',
         option_a=option_a,
         option_b=option_b,
         hostname=hostname,
-        vote=vote,
+        vote=chat,
     ))
     resp.set_cookie('voter_id', voter_id)
     return resp
