@@ -5,6 +5,7 @@ var express = require('express'),
     app = express(),
     server = require('http').Server(app),
     io = require('socket.io')(server);
+    path = require('path')
 
 var port = process.env.PORT || 4000;
 
@@ -16,7 +17,6 @@ io.on('connection', function (socket) {
     socket.join(data.channel);
   });
 });
-
 var pool = new Pool({
   connectionString: 'postgres://postgres:postgres@db/postgres'
 });
@@ -40,38 +40,46 @@ async.retry(
   }
 );
 
+//function getVotes(client) {
 function getVotes(client) {
-  client.query('SELECT vote, COUNT(id) AS count FROM votes GROUP BY vote', [], function(err, result) {
+  client.query('SELECT vote as chat, id  FROM votes ㅁ', [], function(err, result) {
     if (err) {
       console.error("Error performing query: " + err);
     } else {
-      var votes = collectVotesFromResult(result);
-      io.sockets.emit("scores", JSON.stringify(votes));
+      // var votes = collectVotesFromResult(result);  
+      
+      chat = collectVotesFromResult(result.rows)
+
+      io.sockets.emit("scores", JSON.stringify(chat));
     }
 
     setTimeout(function() {getVotes(client) }, 1000);
   });
+
 }
-
+back = []
 function collectVotesFromResult(result) {
-  var votes = {a: 0, b: 0};
-
-  result.rows.forEach(function (row) {
-    votes[row.vote] = parseInt(row.count);
+  
+  var newChat = result.filter(function(item) {
+    return !back.some(function(backItem) {
+      return backItem.id === item.id; // ID를 기준으로 비교
+    });
   });
-
-  return votes;
+  back = result
+  return newChat
 }
 
 app.use(cookieParser());
 app.use(express.urlencoded());
-app.use(express.static(__dirname + '/views'));
+// app.use(express.static(__dirname + '/views'));
 
 app.get('/', function (req, res) {
-  res.sendFile(path.resolve(__dirname + '/views/index.html'));
+  back = []
+  res.sendFile(path.resolve(__dirname + '/views/chat.html'));
 });
 
 server.listen(port, function () {
+
   var port = server.address().port;
   console.log('App running on port ' + port);
 });

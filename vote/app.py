@@ -5,6 +5,7 @@ import socket
 import random
 import json
 import logging
+from datetime import datetime
 
 option_a = os.getenv('OPTION_A', "Cats")
 option_b = os.getenv('OPTION_B', "Dogs")
@@ -16,10 +17,10 @@ gunicorn_error_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers.extend(gunicorn_error_logger.handlers)
 app.logger.setLevel(logging.INFO)
 
-# def get_redis():
-#     if not hasattr(g, 'redis'):
-#         g.redis = Redis(host="redis", db=0, socket_timeout=5)
-#     return g.redis
+def get_redis():
+    if not hasattr(g, 'redis'):
+        g.redis = Redis(host="redis", db=0, socket_timeout=5)
+    return g.redis
 
 @app.route("/", methods=['POST','GET'])
 def hello():
@@ -30,14 +31,13 @@ def hello():
     chat = None
 
     if request.method == 'POST':
-        # redis = get_redis()
+        redis = get_redis()
         chat = request.form['chat']
-        # user_input = request.form['user_input']
-        print(chat)
-        # print(user_input)
+        now = str(datetime.now().timestamp())
+        id =voter_id+now
         app.logger.info('Received vote for %s', chat)
-        data = json.dumps({'voter_id': voter_id, 'vote': chat})
-        # redis.rpush('votes', data)
+        data = json.dumps({'voter_id': id, 'vote': chat})
+        redis.rpush('votes', data)
 
     resp = make_response(render_template(
         'index.html',

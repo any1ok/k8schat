@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #chat {
+            width: 100%;
+            max-width: 600px;
+            height: 90vh;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+            /* flex-direction: column-reverse; 새 메시지가 하단에 추가되도록 합니다 */
+        }
+        .message {
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            background-color: #f1f1f1;
+            word-wrap: break-word; /* 긴 텍스트가 있을 경우 줄바꿈을 합니다 */
+        }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var socket = io.connect(window.location.origin);
+            var chatContainer = document.getElementById('chat');
+
+            socket.on('scores', function(data) {
+                var messages = JSON.parse(data);
+                // 페이지에 새 메시지를 아래쪽에 추가합니다.
+                messages.forEach(function(msg) {
+                    var chatMessage = document.createElement('div');
+                    chatMessage.classList.add('message');
+                    chatMessage.textContent = msg.chat;
+                    // 새 메시지를 chatContainer의 끝 부분에 추가합니다.
+                    chatContainer.appendChild(chatMessage); 
+                });
+                // 스크롤을 하단으로 이동시킵니다.
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="chat"></div> <!-- 채팅 메시지가 여기에 표시됩니다 -->
+</body>
+</html>
